@@ -37,3 +37,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Ignore build artifacts in external libs (if any get generated accidentally)
+external/**/build/
+external/**/CMakeFiles/
+external/**/CMakeCache.txt
