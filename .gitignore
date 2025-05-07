@@ -1,5 +1,39 @@
-# IDE folders
+# Build directories
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+
+# Compiled source files
+*.o
+*.obj
+*.lo
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+
+# Generated files
+Makefile
+cmake_install.cmake
+compile_commands.json
+
+# Visual Studio Code
+.vscode/
+
+# CLion / JetBrains
 .idea/
 
-#Cmake
-api/cmake-build-debug
+# Xcode
+*.xcworkspace
+*.xcuserstate
+*.xcodeproj
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
