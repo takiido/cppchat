@@ -1,6 +1,12 @@
-#include <iostream>
+//
+// Created by Alex Tovshchyk on 2025-05-07.
+//
+
+#include <server.h>
+
+using cppchat::server::Server;
 
 int main() {
-    std::cout << "Hello, cppchat_server!" << std::endl;
-    return 0;
+    const Server server(12345);
+    server.run();
 }
