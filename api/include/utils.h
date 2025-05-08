@@ -11,9 +11,11 @@
 #include <sstream>
 
 namespace cppchat::api {
-
-std::unordered_map<std::string, std::string> load_env(const std::string &filename);
-
+    ///
+    /// @brief looks complex but only used to read .env
+    /// @param filename path to .env file
+    /// @return surprisingly .env values
+    std::unordered_map<std::string, std::string> load_env(const std::string &filename);
 } // cppchat::api
 
 #endif //UTILS_H

@@ -9,16 +9,18 @@
 #include "client_handler.h"
 
 namespace cppchat::server {
+    ///
+    /// @brief literally main server class
+    class Server {
+    public:
+        explicit Server(int port);
 
-class Server {
-public:
-    explicit Server(int port);
-    void run();
+        void run();
 
-private:
-    int port_;
-    std::list<std::shared_ptr<ClientHandler>> clients_;
-};
+    private:
+        int port_;
+        std::list<std::shared_ptr<ClientHandler> > clients_;
+    };
 } // cppchat::server
 
 #endif //SERVER_H

@@ -11,16 +11,19 @@
 using std::string, std::optional, std::nullopt;
 
 namespace cppchat::api {
-
     struct Message {
-      string sender;
-      optional<string> receiver;
-      optional<string> group_id;
-      string content;
-      uint64_t timestamp;
+        string sender;
+        optional<string> receiver;
+        optional<string> group_id;
+        string content;
+        uint64_t timestamp;
     };
 
-    inline void to_json(nlohmann::json& j, const Message& m) {
+    ///
+    /// @brief helper function used for parsing message to json
+    /// @param j json object to parse into
+    /// @param m message structure to parse from
+    inline void to_json(nlohmann::json &j, const Message &m) {
         j = nlohmann::json{
             {"sender", m.sender},
             {"content"}, m.content,
@@ -31,7 +34,11 @@ namespace cppchat::api {
         if (m.group_id) j["group_id"] = m.group_id.value();
     }
 
-    inline void from_json(const nlohmann::json& j, Message& m) {
+    ///
+    /// @brief helper function used for parsing message from json
+    /// @param j json object to parse from
+    /// @param m message structure to parse into
+    inline void from_json(const nlohmann::json &j, Message &m) {
         j.at("sender").get_to(m.sender);
 
         if (j.contains("receiver") && !j["receiver"].is_null())
