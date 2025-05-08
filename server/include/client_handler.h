@@ -10,6 +10,11 @@
 #include "json.hpp"
 #include <iostream>
 #include <message.h>
+#include <server.h>
+
+namespace cppchat::server {
+    class Server;
+}
 
 namespace cppchat::server {
     using asio::ip::tcp;
@@ -18,12 +23,13 @@ namespace cppchat::server {
     /// @brief handles incoming client data
     class ClientHandler {
     public:
-        explicit ClientHandler(tcp::socket socket);
+        explicit ClientHandler(tcp::socket socket, server::Server *server);
 
         void start();
 
     private:
         tcp::socket socket_;
+        server::Server *server_;
 
         static bool handle_socket_error(const std::error_code &ec);
 

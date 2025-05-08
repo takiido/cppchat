@@ -3,10 +3,10 @@
 //
 
 #include "../include/client_handler.h"
+#include <server.h>
 
 namespace cppchat::server {
-    ClientHandler::ClientHandler(tcp::socket socket): socket_(std::move(socket)) {
-    }
+    ClientHandler::ClientHandler(tcp::socket socket, Server *server): socket_(std::move(socket)), server_(server) {}
 
     void ClientHandler::start() {
         std::error_code ec;
@@ -32,7 +32,7 @@ namespace cppchat::server {
 
             auto j = nlohmann::json::parse(message);
             auto msg = j.get<api::Message>();
-            print_message(&msg);
+            server_->route_message(msg);
         }
     }
 
