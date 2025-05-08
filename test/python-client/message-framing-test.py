@@ -24,8 +24,8 @@ def send_message(s, _sender, _receiver, _content, _timestamp):
 if __name__ == '__main__':
     load_dotenv(dotenv_path="../../.env.dev")
 
-    sender = "user_1"
-    receiver = "user_2"
+    sender = input("Enter your username: ")
+    receiver = input("Enter receiver username: ")
     timestamp = time.time()
 
     HOST = os.getenv("HOST")
