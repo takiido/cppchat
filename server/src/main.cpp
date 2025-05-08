@@ -7,6 +7,6 @@
 using cppchat::server::Server;
 
 int main() {
-    const Server server(12345);
-    server.run();
+    Server sv(12345);
+    sv.run();
 }
