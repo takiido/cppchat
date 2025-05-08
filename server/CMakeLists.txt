@@ -16,4 +16,5 @@ target_include_directories(cppchat_server
             ${CMAKE_CURRENT_SOURCE_DIR}/../api/include
             ${CMAKE_CURRENT_SOURCE_DIR}/include
             ${CMAKE_SOURCE_DIR}/external/asio/include
+            ${CMAKE_SOURCE_DIR}/external/nlohmann
 )

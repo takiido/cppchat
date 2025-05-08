@@ -29,7 +29,10 @@ namespace cppchat::server {
             if (handle_socket_error(ec)) break;
 
             std::string message(data.begin(), data.end());
-            std::cout << "Message received: " << message << std::endl;
+
+            auto j = nlohmann::json::parse(message);
+            auto msg = j.get<api::Message>();
+            print_message(&msg);
         }
     }
 
@@ -44,5 +47,15 @@ namespace cppchat::server {
             std::cerr << "Read error: " << ec.message() << std::endl;
         }
         return true;
+    }
+
+    void ClientHandler::print_message(api::Message *msg) {
+        std::cout << "Sender: " << msg->sender << std::endl;
+        if (msg->receiver.has_value())
+            std::cout << "Receiver: " << msg->receiver.value() << std::endl;
+        if (msg->group_id.has_value())
+            std::cout << "Group ID: " << msg->group_id.value() << std::endl;
+        std::cout << "Content: " << msg->content << std::endl;
+        std::cout << "Timestamp: " << msg->timestamp << std::endl;
     }
 } // cppchat::server

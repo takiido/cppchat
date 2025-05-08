@@ -7,7 +7,9 @@
 
 #include <asio/ip/tcp.hpp>
 #include <asio/read.hpp>
+#include "json.hpp"
 #include <iostream>
+#include <message.h>
 
 namespace cppchat::server {
 
@@ -20,7 +22,8 @@ public:
 
 private:
     tcp::socket socket_;
-    bool handle_socket_error(const std::error_code& ec);
+    static bool handle_socket_error(const std::error_code& ec);
+    void print_message(api::Message *msg);
 };
 
 } // cppchat
