@@ -51,7 +51,7 @@ def listen_for_messages(s):
 
 
 if __name__ == '__main__':
-    load_dotenv(dotenv_path="../../.env.dev")
+    load_dotenv(dotenv_path="../.env.dev")
 
     sender = input("Enter your username: ")
     receiver = input("Enter receiver username: ")
