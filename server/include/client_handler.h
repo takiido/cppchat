@@ -12,20 +12,23 @@
 #include <message.h>
 
 namespace cppchat::server {
+    using asio::ip::tcp;
 
-using asio::ip::tcp;
+    ///
+    /// @brief handles incoming client data
+    class ClientHandler {
+    public:
+        explicit ClientHandler(tcp::socket socket);
 
-class ClientHandler {
-public:
-    explicit ClientHandler(tcp::socket socket);
-    void start();
+        void start();
 
-private:
-    tcp::socket socket_;
-    static bool handle_socket_error(const std::error_code& ec);
-    void print_message(api::Message *msg);
-};
+    private:
+        tcp::socket socket_;
 
+        static bool handle_socket_error(const std::error_code &ec);
+
+        void print_message(api::Message *msg);
+    };
 } // cppchat
 
 #endif //CLIENT_HANDLER_H
