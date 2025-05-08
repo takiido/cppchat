@@ -1,5 +1,7 @@
 import socket
 import struct
+import os
+from dotenv import load_dotenv
 
 
 def send_message(s, message):
@@ -12,8 +14,10 @@ def send_message(s, message):
 
 
 if __name__ == '__main__':
-    HOST = '127.0.0.1'
-    PORT = 12345
+    load_dotenv(dotenv_path="../../.env.dev")
+
+    HOST = os.getenv("HOST")
+    PORT = int(os.getenv("PORT"))
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((HOST, PORT))

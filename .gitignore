@@ -42,3 +42,7 @@ Thumbs.db
 external/**/build/
 external/**/CMakeFiles/
 external/**/CMakeCache.txt
+
+# Environment
+.env
+.env.local
