@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_library(cppchat_api STATIC
         src/main.cpp
+        src/utils.cpp
 )
 
 target_include_directories(cppchat_api PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
