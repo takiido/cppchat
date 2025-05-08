@@ -3,6 +3,7 @@ import socket
 import struct
 import os
 import time
+import threading
 
 from dotenv import load_dotenv
 
@@ -20,6 +21,34 @@ def send_message(s, _sender, _receiver, _content, _timestamp):
     length = struct.pack('!I', len(message_bytes))
     s.sendall(length + message_bytes)
 
+def receive_message(s):
+    length_bytes = s.recv(4)
+    if not length_bytes:
+        return None
+
+    length = struct.unpack('!I', length_bytes)[0]
+
+    data = b''
+    while len(data) < length:
+        more = s.recv(length - len(data))
+        if not more:
+            return None
+        data += more
+
+    message_json = data.decode('utf-8')
+    return json.loads(message_json)
+
+def listen_for_messages(s):
+    while True:
+        try:
+            msg = receive_message(s)
+            if msg is None:
+                print("Connection closed be the server.")
+            print(f"\n[RECEIVED] From {msg['sender']}: {msg['content']}")
+        except Exception as e:
+            print(f"Error receiving message: {e}")
+            break
+
 
 if __name__ == '__main__':
     load_dotenv(dotenv_path="../../.env.dev")
@@ -33,6 +62,9 @@ if __name__ == '__main__':
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((HOST, PORT))
+
+    listener_thread = threading.Thread(target=listen_for_messages, args=(sock,), daemon=True)
+    listener_thread.start()
 
     try:
         while True:
