@@ -6,6 +6,7 @@
 #define CLIENT_HANDLER_H
 
 #include <asio/ip/tcp.hpp>
+#include <asio/read.hpp>
 #include <iostream>
 
 namespace cppchat::server {
@@ -14,11 +15,12 @@ using asio::ip::tcp;
 
 class ClientHandler {
 public:
-    ClientHandler(tcp::socket socket);
+    explicit ClientHandler(tcp::socket socket);
     void start();
 
 private:
     tcp::socket socket_;
+    bool handle_socket_error(const std::error_code& ec);
 };
 
 } // cppchat
