@@ -4,9 +4,11 @@
 
 #include "../include/client_handler.h"
 #include <server.h>
+#include <asio/impl/write.hpp>
 
 namespace cppchat::server {
-    ClientHandler::ClientHandler(tcp::socket socket, Server *server): socket_(std::move(socket)), server_(server) {}
+    ClientHandler::ClientHandler(tcp::socket socket, Server *server): socket_(std::move(socket)), server_(server) {
+    }
 
     void ClientHandler::start() {
         std::error_code ec;
@@ -34,6 +36,25 @@ namespace cppchat::server {
             auto msg = j.get<api::Message>();
             server_->route_message(msg);
         }
+    }
+
+    void ClientHandler::send_message(const api::Message &msg) {
+        nlohmann::json j = msg;
+        std::string data = j.dump();
+
+        uint32_t length = htonl(static_cast<uint32_t>(data.size()));
+
+        std::error_code ec;
+
+        asio::mutable_buffer length_buffer = asio::buffer(&length, sizeof(uint32_t));
+        asio::write(socket_, length_buffer, ec);
+        if (handle_socket_error(ec)) return;
+
+        asio::mutable_buffer data_buffer = asio::buffer(data.data(), data.size());
+        asio::write(socket_, data_buffer, ec);
+        if (handle_socket_error(ec)) return;
+
+        std::cout << "Message forwarded to client!" << std::endl;
     }
 
     bool ClientHandler::handle_socket_error(const std::error_code &ec) {

@@ -7,6 +7,7 @@
 
 #include <asio/ip/tcp.hpp>
 #include <asio/read.hpp>
+#include <asio/write.hpp>
 #include "json.hpp"
 #include <iostream>
 #include <message.h>
@@ -26,6 +27,7 @@ namespace cppchat::server {
         explicit ClientHandler(tcp::socket socket, server::Server *server);
 
         void start();
+        void send_message(const api::Message &msg);
 
     private:
         tcp::socket socket_;
