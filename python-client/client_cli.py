@@ -38,6 +38,20 @@ def receive_message(s):
     message_json = data.decode('utf-8')
     return json.loads(message_json)
 
+def connect_to_server(s, host, port, retry_interval=3):
+    print(f"Connecting to server on {host}:{port}")
+    while True:
+        try:
+            s.connect((host, port))
+            print(f"Connected to {host}:{port}")
+            return
+        except ConnectionRefusedError:
+            print(f"Connection refused. Retrying in {retry_interval} seconds...")
+            time.sleep(retry_interval)
+        except Exception as e:
+            print(f"Connection failed: {e}. Retrying in {retry_interval} seconds...")
+            time.sleep(retry_interval)
+
 def listen_for_messages(s):
     while True:
         try:
@@ -61,7 +75,7 @@ if __name__ == '__main__':
     PORT = int(os.getenv("PORT"))
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((HOST, PORT))
+    connect_to_server(sock, HOST, PORT)
 
     listener_thread = threading.Thread(target=listen_for_messages, args=(sock,), daemon=True)
     listener_thread.start()
