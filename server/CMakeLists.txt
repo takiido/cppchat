@@ -7,6 +7,7 @@ add_executable(cppchat_server
         src/main.cpp
         src/server.cpp
         src/main.cpp
+        src/client_handler.cpp
 )
 
 target_link_libraries(cppchat_server cppchat_api)
