@@ -8,4 +8,8 @@ add_library(cppchat_api STATIC
         src/utils.cpp
 )
 
-target_include_directories(cppchat_api PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(cppchat_api
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+            ${CMAKE_SOURCE_DIR}/external/nlohmann
+)

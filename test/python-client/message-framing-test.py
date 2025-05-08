@@ -1,20 +1,32 @@
+import json
 import socket
 import struct
 import os
+import time
+
 from dotenv import load_dotenv
 
 
-def send_message(s, message):
-    message_bytes = message.encode('utf-8')
-    length = len(message_bytes)
+def send_message(s, _sender, _receiver, _content, _timestamp):
+    msg = {
+        "sender": _sender,
+        "receiver": _receiver,
+        "content": _content,
+        "timestamp": _timestamp
+    }
 
-    length_pref = struct.pack('!I', length)
+    message_bytes = json.dumps(msg).encode('utf-8')
 
-    s.sendall(length_pref + message_bytes)
+    length = struct.pack('!I', len(message_bytes))
+    s.sendall(length + message_bytes)
 
 
 if __name__ == '__main__':
     load_dotenv(dotenv_path="../../.env.dev")
+
+    sender = "user_1"
+    receiver = "user_2"
+    timestamp = time.time()
 
     HOST = os.getenv("HOST")
     PORT = int(os.getenv("PORT"))
@@ -24,9 +36,9 @@ if __name__ == '__main__':
 
     try:
         while True:
-            msg = input("Enter message to send (or '!q' to exit): ")
-            if msg.lower() == '!q':
+            content = input("Enter message to send (or '!q' to exit): ")
+            if content.lower() == '!q':
                 break
-            send_message(sock, msg)
+            send_message(sock, sender, receiver, content, timestamp)
     finally:
         sock.detach()
