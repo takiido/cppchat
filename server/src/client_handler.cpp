@@ -4,7 +4,6 @@
 
 #include "../include/client_handler.h"
 #include <server.h>
-#include <asio/impl/write.hpp>
 
 namespace cppchat::server {
     ClientHandler::ClientHandler(tcp::socket socket, Server *server): socket_(std::move(socket)), server_(server) {
@@ -12,6 +11,8 @@ namespace cppchat::server {
 
     void ClientHandler::start() {
         std::error_code ec;
+
+        authorize(ec);
 
         while (true) {
             uint32_t length = 0;
@@ -32,8 +33,16 @@ namespace cppchat::server {
 
             std::string message(data.begin(), data.end());
 
+            std::cout << message << std::endl;
+
             auto j = nlohmann::json::parse(message);
             auto msg = j.get<api::Message>();
+
+            if (msg.receiver.has_value() && msg.receiver.value() == "user_2") {
+                print_message(&msg);
+                continue;
+            }
+
             server_->route_message(msg);
         }
     }
@@ -68,6 +77,25 @@ namespace cppchat::server {
             std::cerr << "Read error: " << ec.message() << std::endl;
         }
         return true;
+    }
+
+    void ClientHandler::authorize(std::error_code &ec) {
+        // Trying to register user
+        uint32_t length = 0;
+        asio::read(socket_, asio::buffer(&length, sizeof(uint32_t)), ec);
+        if (handle_socket_error(ec)) return;
+        length = ntohl(length);
+
+        std::vector<char> data(length);
+        asio::read(socket_, asio::buffer(data), ec);
+        if (handle_socket_error(ec)) return;
+
+        std::string message(data.begin(), data.end());
+        auto j = nlohmann::json::parse(message);
+        std::string username = j["username"];
+
+        std::cout << "Registering client with username: " << username << std::endl;
+        server_->register_client(username, shared_from_this());
     }
 
     void ClientHandler::print_message(api::Message *msg) {

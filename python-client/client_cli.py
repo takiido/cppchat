@@ -44,6 +44,7 @@ def connect_to_server(s, host, port, retry_interval=3):
         try:
             s.connect((host, port))
             print(f"Connected to {host}:{port}")
+            authorize(s, sender)
             return
         except ConnectionRefusedError:
             print(f"Connection refused. Retrying in {retry_interval} seconds...")
@@ -63,6 +64,14 @@ def listen_for_messages(s):
             print(f"Error receiving message: {e}")
             break
 
+def authorize(s, username):
+    username_msg = {
+        "username": username
+    }
+
+    msg_bytes = json.dumps(username_msg).encode('utf-8')
+    length = struct.pack('!I', len(msg_bytes))
+    s.sendall(length + msg_bytes)
 
 if __name__ == '__main__':
     load_dotenv(dotenv_path="../.env.dev")

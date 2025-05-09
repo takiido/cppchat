@@ -30,8 +30,6 @@ namespace cppchat::server {
                 // Create handler for next new client
                 auto handler = std::make_shared<ClientHandler>(std::move(socket), this);
                 clients_.push_back(handler);
-                //TODO: remove hardcoded username
-                clients_by_username["user_2"] = handler;
 
                 handler->start(); // Ask client handler to do his handlin staff
             }
@@ -49,5 +47,10 @@ namespace cppchat::server {
 
         std::cout << "Got something here for " << msg.receiver.value_or("empty")
                 << " from " << msg.sender << ": " << msg.content << std::endl;
+    }
+
+    void Server::register_client(std::string &username, std::shared_ptr<ClientHandler> client) {
+        clients_by_username[username] = client;
+        std::cout << "Client registered as: " << username << std::endl;
     }
 } // cppchat::server

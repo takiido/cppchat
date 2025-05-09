@@ -20,13 +20,15 @@ namespace cppchat::server {
         explicit Server(int port);
 
         void run();
+
         void route_message(const api::Message &msg);
+
+        void register_client(std::string &username, std::shared_ptr<ClientHandler> client);
 
     private:
         int port_;
         std::list<std::shared_ptr<ClientHandler> > clients_;
         std::unordered_map<std::string, std::shared_ptr<ClientHandler> > clients_by_username;
-
     };
 } // cppchat::server
 
