@@ -31,7 +31,9 @@ namespace cppchat::server {
                 auto handler = std::make_shared<ClientHandler>(std::move(socket), this);
                 clients_.push_back(handler);
 
-                handler->start(); // Ask client handler to do his handlin staff
+                std::thread([handler]() { // Probably will work for multiple users idk
+                    handler->start(); // Ask client handler to do his handlin staff
+                });
             }
         } catch (const std::exception &e) {
             std::cerr << "Server error: " << e.what() << std::endl;
