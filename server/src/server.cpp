@@ -33,7 +33,7 @@ namespace cppchat::server {
 
                 std::thread([handler]() { // Probably will work for multiple users idk
                     handler->start(); // Ask client handler to do his handlin staff
-                });
+                }).detach();
             }
         } catch (const std::exception &e) {
             std::cerr << "Server error: " << e.what() << std::endl;
