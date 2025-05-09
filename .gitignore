@@ -44,5 +44,4 @@ external/**/CMakeFiles/
 external/**/CMakeCache.txt
 
 # Environment
-.env
-.env.local
+.env*

@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.1
+    container_name: ${PROJECT}-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
+      - ELASTIC_PASSWORD=${ES_PSSWD}
+    ports:
+      - "${ES_PORT}:9200"
+    volumes:
+      - ${ES_DATA}:/usr/share/elasticsearch/data
+    healthcheck:
+      test: curl -u elastic:${ES_PSSWD} -s http://localhost:9200 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.0.1
+    container_name: ${PROJECT}-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:${ES_PORT}
+      - ELASTICSEARCH_USERNAME=${ES_USER}
+      - ELASTICSEARCH_PASSWORD=${ES_PSSWD}
+    ports:
+      - "${KIBANA_PORT}:5601"
+    volumes:
+      - ${KIBANA_DATA}:/usr/share/kibana/data
+    depends_on:
+      elasticsearch:
+          condition: service_healthy
