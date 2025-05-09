@@ -14,41 +14,12 @@ namespace cppchat::server {
 
         authorize(ec);
 
-        while (true) {
-            uint32_t length = 0;
-            asio::read(socket_, asio::buffer(&length, sizeof(length)), ec);
-
-            if (handle_socket_error(ec)) break;
-
-            length = ntohl(length);
-
-            if (length == 0 || length > 1024) {
-                std::cout << "Invalid message length received: " << length << std::endl;
-                break;
-            }
-
-            std::vector<char> data(length);
-            asio::read(socket_, asio::buffer(data), ec);
-            if (handle_socket_error(ec)) break;
-
-            std::string message(data.begin(), data.end());
-
-            std::cout << message << std::endl;
-
-            auto j = nlohmann::json::parse(message);
-            auto msg = j.get<api::Message>();
-
-            if (msg.receiver.has_value() && msg.receiver.value() == "user_2") {
-                print_message(&msg);
-                continue;
-            }
-
-            server_->route_message(msg);
-        }
+        while (get_message(ec));
     }
 
-    void ClientHandler::send_message(const api::Message &msg) {
-        nlohmann::json j = msg;
+    void ClientHandler::send_message(api::Message &msg) {
+        nlohmann::json j {msg};
+
         std::string data = j.dump();
 
         uint32_t length = htonl(static_cast<uint32_t>(data.size()));
@@ -98,13 +69,42 @@ namespace cppchat::server {
         server_->register_client(username, shared_from_this());
     }
 
-    void ClientHandler::print_message(api::Message *msg) {
-        std::cout << "Sender: " << msg->sender << std::endl;
-        if (msg->receiver.has_value())
-            std::cout << "Receiver: " << msg->receiver.value() << std::endl;
-        if (msg->group_id.has_value())
-            std::cout << "Group ID: " << msg->group_id.value() << std::endl;
-        std::cout << "Content: " << msg->content << std::endl;
-        std::cout << "Timestamp: " << msg->timestamp << std::endl;
+    bool ClientHandler::get_message(std::error_code &ec) {
+        uint32_t length = 0;
+        asio::read(socket_, asio::buffer(&length, sizeof(uint32_t)), ec);
+        if (handle_socket_error(ec)) return false;
+
+        length = ntohl(length);
+
+        if (length == 0 || length > 1024) {
+            std::cout << "Invalid message length received: " << length << std::endl;
+            return false;
+        }
+
+        std::vector<char> data(length);
+        asio::read(socket_, asio::buffer(data), ec);
+        if (handle_socket_error(ec)) return false;
+
+        std::string message(data.begin(), data.end());
+
+        auto j = nlohmann::json::parse(message);
+        api::Message msg = j.get<api::Message>();
+
+        // TODO: add group messages logic
+        if (msg.receiver.has_value()) {
+            server_->route_message(msg);
+        }
+
+        return true;
+    }
+
+    void ClientHandler::print_message(api::Message &msg) {
+        std::cout << "Sender: " << msg.sender << std::endl;
+        if (msg.receiver.has_value())
+            std::cout << "Receiver: " << msg.receiver.value() << std::endl;
+        if (msg.group_id.has_value())
+            std::cout << "Group ID: " << msg.group_id.value() << std::endl;
+        std::cout << "Content: " << msg.content << std::endl;
+        std::cout << "Timestamp: " << msg.timestamp << std::endl;
     }
 } // cppchat::server

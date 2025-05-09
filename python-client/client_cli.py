@@ -1,12 +1,12 @@
+from datetime import datetime
 import json
 import socket
 import struct
 import os
 import time
 import threading
-
+import sys
 from dotenv import load_dotenv
-
 
 def send_message(s, _sender, _receiver, _content, _timestamp):
     msg = {
@@ -17,7 +17,6 @@ def send_message(s, _sender, _receiver, _content, _timestamp):
     }
 
     message_bytes = json.dumps(msg).encode('utf-8')
-
     length = struct.pack('!I', len(message_bytes))
     s.sendall(length + message_bytes)
 
@@ -27,7 +26,6 @@ def receive_message(s):
         return None
 
     length = struct.unpack('!I', length_bytes)[0]
-
     data = b''
     while len(data) < length:
         more = s.recv(length - len(data))
@@ -56,19 +54,21 @@ def connect_to_server(s, host, port, retry_interval=3):
 def listen_for_messages(s):
     while True:
         try:
-            msg = receive_message(s)
+            msg = receive_message(s)[0]
             if msg is None:
-                print("Connection closed be the server.")
-            print(f"\n[RECEIVED] From {msg['sender']}: {msg['content']}")
+                print("\n🔌 Connection closed by the server.")
+                break
+            dt_str = datetime.fromtimestamp(msg['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+            sys.stdout.write('\r' + ' ' * 100 + '\r')  # Clear input line
+            print(f"[{dt_str}] @{msg['sender']}: {msg['content']}")
+            sys.stdout.write("Enter message to send (or '!q' to exit): ")
+            sys.stdout.flush()
         except Exception as e:
-            print(f"Error receiving message: {e}")
+            print(f"\nError receiving message: {e}")
             break
 
 def authorize(s, username):
-    username_msg = {
-        "username": username
-    }
-
+    username_msg = {"username": username}
     msg_bytes = json.dumps(username_msg).encode('utf-8')
     length = struct.pack('!I', len(msg_bytes))
     s.sendall(length + msg_bytes)
@@ -78,7 +78,6 @@ if __name__ == '__main__':
 
     sender = input("Enter your username: ")
     receiver = input("Enter receiver username: ")
-    timestamp = time.time()
 
     HOST = os.getenv("HOST")
     PORT = int(os.getenv("PORT"))
@@ -91,9 +90,19 @@ if __name__ == '__main__':
 
     try:
         while True:
-            content = input("Enter message to send (or '!q' to exit): ")
+            sys.stdout.write("Enter message to send (or '!q' to exit): ")
+            sys.stdout.flush()
+            content = sys.stdin.readline().strip()
+
             if content.lower() == '!q':
                 break
+
+            timestamp = int(time.time())
             send_message(sock, sender, receiver, content, timestamp)
+
+            # Clear previous line (prompt) and print your own message
+            sys.stdout.write('\033[F\033[K')
+            date_str = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+            print(f"[{date_str}] @$: {content}")
     finally:
-        sock.detach()
+        sock.close()

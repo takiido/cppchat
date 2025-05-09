@@ -21,7 +21,7 @@ namespace cppchat::server {
 
         void run();
 
-        void route_message(const api::Message &msg);
+        void route_message(api::Message &msg);
 
         void register_client(std::string &username, std::shared_ptr<ClientHandler> client);
 

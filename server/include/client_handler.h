@@ -28,7 +28,7 @@ namespace cppchat::server {
 
         void start();
 
-        void send_message(const api::Message &msg);
+        void send_message(api::Message &msg);
 
     private:
         tcp::socket socket_;
@@ -37,9 +37,11 @@ namespace cppchat::server {
 
         static bool handle_socket_error(const std::error_code &ec);
 
-        void print_message(api::Message *msg);
+        void print_message(api::Message &msg);
 
         void authorize(std::error_code &ec);
+
+        bool get_message(std::error_code &ec);
     };
 } // cppchat
 
