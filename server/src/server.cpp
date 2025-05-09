@@ -44,7 +44,7 @@ namespace cppchat::server {
         if (const auto search = clients_by_username.find(msg.receiver.value_or(""));
             search != clients_by_username.end()) {
             std::cout << "Found " << search->first << ' ' << search->second << '\n';
-            search->second->send_message(msg);
+            // search->second->send_message(msg);
         } else std::cout << "Not found\n";
 
         std::cout << "Got something here for " << msg.receiver.value_or("empty")
