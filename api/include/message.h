@@ -5,6 +5,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+#include <iostream>
 #include <string>
 #include "json.hpp"
 
@@ -26,7 +27,7 @@ namespace cppchat::api {
     inline void to_json(nlohmann::json &j, const Message &m) {
         j = nlohmann::json{
             {"sender", m.sender},
-            {"content"}, m.content,
+            {"content", m.content},
             {"timestamp", m.timestamp}
         };
 
