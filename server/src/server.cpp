@@ -5,6 +5,7 @@
 #include "../include/server.h"
 #include <asio.hpp>
 #include <iostream>
+#include <client_handler.h>
 
 using asio::ip::tcp;
 
@@ -27,13 +28,28 @@ namespace cppchat::server {
                         remote_endpoint().port() << std::endl;
 
                 // Create handler for next new client
-                //TODO: test handler from telnet
-                auto handler = std::make_shared<ClientHandler>(std::move(socket));
+                auto handler = std::make_shared<ClientHandler>(std::move(socket), this);
                 clients_.push_back(handler);
-                handler->start(); // Ask client handler to do his handlin staff
+
+                std::thread([handler]() { // Probably will work for multiple users idk
+                    handler->start(); // Ask client handler to do his handlin staff
+                }).detach();
             }
         } catch (const std::exception &e) {
             std::cerr << "Server error: " << e.what() << std::endl;
         }
+    }
+
+    void Server::route_message(api::Message &msg) {
+        if (const auto search = clients_by_username.find(msg.receiver.value_or(""));
+            search != clients_by_username.end()) {
+            std::cout << "Found " << search->first << ' ' << search->second << '\n';
+            search->second->send_message(msg);
+        } else std::cout << "Not found\n";
+    }
+
+    void Server::register_client(std::string &username, std::shared_ptr<ClientHandler> client) {
+        clients_by_username[username] = client;
+        std::cout << "Client registered as: " << username << std::endl;
     }
 } // cppchat::server

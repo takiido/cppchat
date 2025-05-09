@@ -9,6 +9,10 @@
 #include "client_handler.h"
 
 namespace cppchat::server {
+    class ClientHandler;
+}
+
+namespace cppchat::server {
     ///
     /// @brief literally main server class
     class Server {
@@ -17,9 +21,14 @@ namespace cppchat::server {
 
         void run();
 
+        void route_message(api::Message &msg);
+
+        void register_client(std::string &username, std::shared_ptr<ClientHandler> client);
+
     private:
         int port_;
         std::list<std::shared_ptr<ClientHandler> > clients_;
+        std::unordered_map<std::string, std::shared_ptr<ClientHandler> > clients_by_username;
     };
 } // cppchat::server
 
