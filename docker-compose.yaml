@@ -15,6 +15,7 @@ services:
       - xpack.security.enabled=${ES_SECURITY}
       - ELASTIC_PASSWORD=${ES_PSSWD}
       - KIBANA_SYS_PSSWD=${KIBANA_SYS_PSSWD}
+      - KIBANA_ADMIN_PSSWD=${KIBANA_ADMIN_PSSWD}
     volumes:
       - esdata:/usr/share/elasticsearch/data
     healthcheck:

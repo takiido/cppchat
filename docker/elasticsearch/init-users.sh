@@ -31,4 +31,22 @@ else
   exit 1
 fi
 
+echo "🔍 Checking if user 'kibana_admin' exists..."
+USER_CHECK=$(curl -s -o /dev/null -w "%{http_code}" -u "elastic:${ELASTIC_PASSWORD}" \
+  http://localhost:9200/_security/user/kibana_admin)
+
+if [ "$USER_CHECK" -eq 200 ]; then
+  echo "ℹ️ User 'kibana_admin' already exists. Skipping creation."
+else
+  echo "➕ Creating user 'kibana_admin'..."
+  curl -s -u "elastic:${ELASTIC_PASSWORD}" -X POST http://localhost:9200/_security/user/kibana_admin \
+    -H "Content-Type: application/json" -d '{
+      "password": "'"${KIBANA_ADMIN_PSSWD}"'",
+      "roles": ["kibana_admin"],
+      "full_name": "Kibana Admin",
+      "email": "admin@example.com"
+    }'
+  echo "\n✅ User 'kibana_admin' created."
+fi
+
 wait
