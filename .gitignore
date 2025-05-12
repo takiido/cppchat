@@ -45,6 +45,7 @@ external/**/CMakeCache.txt
 
 # Environment
 .env*
+!.env.template
 
 # Generated Elasticsearch/Kibana data
 docker/elasticsearch/data/
