@@ -44,5 +44,11 @@ external/**/CMakeFiles/
 external/**/CMakeCache.txt
 
 # Environment
-.env
-.env.local
+.env*
+!.env.template
+
+# Generated Grafana data
+docker/grafana/provisioning/
+
+# Nginx
+docker/nginx/.htpasswd

@@ -6,6 +6,7 @@
 #define SERVER_H
 
 #include <list>
+#include <logger.h>
 #include "client_handler.h"
 
 namespace cppchat::server {
@@ -29,6 +30,7 @@ namespace cppchat::server {
         int port_;
         std::list<std::shared_ptr<ClientHandler> > clients_;
         std::unordered_map<std::string, std::shared_ptr<ClientHandler> > clients_by_username;
+        std::shared_ptr<spdlog::logger> logger_;
     };
 } // cppchat::server
 

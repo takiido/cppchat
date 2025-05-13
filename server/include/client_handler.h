@@ -34,6 +34,7 @@ namespace cppchat::server {
         tcp::socket socket_;
         server::Server *server_;
         std::string username_;
+        static std::shared_ptr<spdlog::logger> logger_;
 
         static bool handle_socket_error(const std::error_code &ec);
 
@@ -43,6 +44,6 @@ namespace cppchat::server {
 
         bool get_message(std::error_code &ec);
     };
-} // cppchat
+} // namespace cppchat::server
 
 #endif //CLIENT_HANDLER_H

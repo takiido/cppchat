@@ -9,8 +9,12 @@ namespace cppchat::server {
     ClientHandler::ClientHandler(tcp::socket socket, Server *server): socket_(std::move(socket)), server_(server) {
     }
 
+    std::shared_ptr<spdlog::logger> cppchat::server::ClientHandler::logger_ = nullptr;
+
     void ClientHandler::start() {
         std::error_code ec;
+
+        logger_ = spdlog::get("cppchat-server");
 
         authorize(ec);
 
@@ -34,18 +38,18 @@ namespace cppchat::server {
         asio::write(socket_, data_buffer, ec);
         if (handle_socket_error(ec)) return;
 
-        std::cout << "Message forwarded to client!" << std::endl;
+        logger_->info("Message forwarded to client");
     }
 
     bool ClientHandler::handle_socket_error(const std::error_code &ec) {
         if (!ec) return false;
 
         if (ec == asio::error::eof) {
-            std::cout << "Client disconnected gracefully." << std::endl;
+            logger_->info("Client disconnected gracefully");
         } else if (ec == asio::error::connection_reset) {
-            std::cout << "Client disconnected abruptly." << std::endl;
+            logger_->warn("Client disconnected abruptly");
         } else {
-            std::cerr << "Read error: " << ec.message() << std::endl;
+            logger_->error("Read error: {}", ec.message());
         }
         return true;
     }
@@ -65,7 +69,7 @@ namespace cppchat::server {
         auto j = nlohmann::json::parse(message);
         std::string username = j["username"];
 
-        std::cout << "Registering client with username: " << username << std::endl;
+        logger_->info("Registering client with username: {}", username);
         server_->register_client(username, shared_from_this());
     }
 
@@ -77,7 +81,7 @@ namespace cppchat::server {
         length = ntohl(length);
 
         if (length == 0 || length > 1024) {
-            std::cout << "Invalid message length received: " << length << std::endl;
+           logger_->warn("Invalid message length received: {}", length);
             return false;
         }
 
