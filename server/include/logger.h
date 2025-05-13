@@ -9,7 +9,6 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <string>
 #include <filesystem>
-#include <iostream>
 
 using std::filesystem::path, std::filesystem::create_directories;
 

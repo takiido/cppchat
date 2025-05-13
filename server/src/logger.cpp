@@ -7,15 +7,16 @@
 namespace cppchat::server {
     void Logger::init(const std::string &file) {
         try {
-            spdlog::set_pattern("[%Y-%m-%d %H:%M:%S] [%^%l%$] %v");
-            spdlog::set_level(spdlog::level::debug);
-
             path log_path = path(PROJECT_ROOT) / "logs/" / file;
             create_directories(log_path.parent_path());
 
             if (!spdlog::get("cppchat-server")) {
                 s_logger = spdlog::daily_logger_mt("cppchat-server", log_path, 0, 0);
             }
+
+            spdlog::set_default_logger(s_logger);
+            spdlog::set_pattern("[%Y-%m-%d %H:%M:%S] [%^%l%$] %v");
+            spdlog::set_level(spdlog::level::debug);
 
             s_logger->flush_on(spdlog::level::info);
             s_logger->flush_on(spdlog::level::err);

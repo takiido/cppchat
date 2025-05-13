@@ -15,9 +15,9 @@ namespace cppchat::server {
     }
 
     void Server::run() {
-        Logger::init();     // Initialize logger obviously
-        Logger::get()->info("Server started on port {}", port_);
-
+        Logger::init();
+        logger_ = spdlog::get("cppchat-server");
+        logger_->info("Server started on port {}", port_);
 
         try {
             asio::io_context io_context;
@@ -27,8 +27,7 @@ namespace cppchat::server {
                 tcp::socket socket(io_context);
                 acceptor.accept(socket); // Waiting for next new client
 
-                std::cout << "New connection from " << socket.remote_endpoint().address() << ":" << socket.
-                        remote_endpoint().port() << std::endl;
+               logger_->info("New connection from {}:{}", socket.remote_endpoint().address().to_string(), socket.remote_endpoint().port());
 
                 // Create handler for next new client
                 auto handler = std::make_shared<ClientHandler>(std::move(socket), this);
@@ -39,20 +38,22 @@ namespace cppchat::server {
                 }).detach();
             }
         } catch (const std::exception &e) {
-            std::cerr << "Server error: " << e.what() << std::endl;
+            logger_->critical("Server error: {}", e.what());
         }
     }
 
     void Server::route_message(api::Message &msg) {
         if (const auto search = clients_by_username.find(msg.receiver.value_or(""));
             search != clients_by_username.end()) {
-            std::cout << "Found " << search->first << ' ' << search->second << '\n';
+            logger_->info("Found {} {}", search->first, static_cast<void*>(search->second.get()));
             search->second->send_message(msg);
-        } else std::cout << "Not found\n";
+        } else {
+            logger_->info("Client not found");
+        }
     }
 
     void Server::register_client(std::string &username, std::shared_ptr<ClientHandler> client) {
         clients_by_username[username] = client;
-        std::cout << "Client registered as: " << username << std::endl;
+        logger_->info("Client registered as {}", username);
     }
 } // cppchat::server
