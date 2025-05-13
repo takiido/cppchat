@@ -3,27 +3,30 @@
 //
 
 #include "../include/utils.h"
-
 #include <iostream>
+#include <sstream>
 
 namespace cppchat::api {
-    std::unordered_map<std::string, std::string> load_env(const std::string &filename) {
-        std::unordered_map<std::string, std::string> env;
-        std::ifstream file(filename);
-        if (!file.is_open()) {
-            std::cerr << "Failed to open file " << filename << std::endl;
-        }
-        std::string line;
+std::unordered_map<std::string, std::string> load_env(
+    const std::string& filename) {
+  std::unordered_map<std::string, std::string> env;
+  std::ifstream file(filename);
+  if (!file.is_open()) {
+    std::cerr << "Failed to open file " << filename << std::endl;
+  }
+  std::string line;
 
-        while (std::getline(file, line)) {
-            if (line.empty() || line[0] == '#') continue;
-            std::istringstream iss(line);
-            std::string key, value;
-            if (std::getline(iss, key, '=') && std::getline(iss, value)) {
-                env[key] = value;
-            }
-        }
-
-        return env;
+  while (std::getline(file, line)) {
+    if (line.empty() || line[0] == '#')
+      continue;
+    std::istringstream iss(line);
+    std::string value;
+    if (std::string key;
+        std::getline(iss, key, '=') && std::getline(iss, value)) {
+      env[key] = value;
     }
-} // cppchat::api
+  }
+
+  return env;
+}
+}  // namespace cppchat::api
