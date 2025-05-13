@@ -15,10 +15,13 @@ namespace cppchat::server {
     }
 
     void Server::run() {
+        Logger::init();     // Initialize logger obviously
+        Logger::get()->info("Server started on port {}", port_);
+
+
         try {
             asio::io_context io_context;
             tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), port_));
-            std::cout << "Server started on port " << port_ << std::endl;
 
             for (;;) {
                 tcp::socket socket(io_context);

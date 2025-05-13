@@ -19,13 +19,12 @@ scrape_configs:
         labels:
           job: cppchat
           __path__: /var/log/cppchat/*.log
+
     pipeline_stages:
       - match:
           selector: '{job="cppchat"}'
           stages:
-            - logfmt:
-                mapping:
-                  level: level
-                  msg: msg
+            - regex:
+                expression: '\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] \[(?P<level>[a-zA-Z]+)\]'
             - labels:
                 level:

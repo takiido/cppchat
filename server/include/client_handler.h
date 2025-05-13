@@ -43,6 +43,6 @@ namespace cppchat::server {
 
         bool get_message(std::error_code &ec);
     };
-} // cppchat
+} // namespace cppchat::server
 
 #endif //CLIENT_HANDLER_H

@@ -6,6 +6,7 @@
 #define SERVER_H
 
 #include <list>
+#include <logger.h>
 #include "client_handler.h"
 
 namespace cppchat::server {
