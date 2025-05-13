@@ -2,14 +2,14 @@ server:
   http_listen_port: 9080
   grpc_listen_port: 0
 
+positions:
+  filename: /tmp/positions.yaml
+
 clients:
   - url: http://loki:3100/loki/api/v1/push
     basic_auth:
-      username: ${USER}
-      password: ${PSSWD}
-
-positions:
-  filename: /tmp/positions.yaml
+      username: ${USER:-promtail}
+      password: ${PSSWD:-}
 
 scrape_configs:
   - job_name: cppchat
@@ -18,4 +18,14 @@ scrape_configs:
           - localhost
         labels:
           job: cppchat
-          __path__: /var/log/cppchat/cppchat.log
+          __path__: /var/log/cppchat/*.log
+    pipeline_stages:
+      - match:
+          selector: '{job="cppchat"}'
+          stages:
+            - logfmt:
+                mapping:
+                  level: level
+                  msg: msg
+            - labels:
+                level:

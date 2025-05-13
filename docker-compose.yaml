@@ -1,32 +1,41 @@
+# Version 3.9 for latest Docker Compose features
 version: '3.9'
 
+# Named volumes for persistent data
 volumes:
   grafana-data:
-    name: ${PROJECT}_grafana_data
+    name: ${PROJECT:-cppchat}_grafana_data
   loki-data:
-    name: ${PROJECT}_loki_data
+    name: ${PROJECT:-cppchat}_loki_data
 
+# Network configuration
 networks:
   cppchat:
+    name: ${PROJECT:-cppchat}_network
     driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: ${PROJECT:-cppchat}_network
 
+# Service definitions
 services:
+  # Loki logging server
   loki:
     image: grafana/loki:3.5.0
-    container_name: ${PROJECT}-loki
+    container_name: ${PROJECT:-cppchat}-loki
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml -config.expand-env=true
     volumes:
-      - ./docker/loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./docker/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
       - loki-data:/loki
     networks:
       - cppchat
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready"]
       interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 30s
     logging:
       driver: json-file
       options:
@@ -41,12 +50,13 @@ services:
     environment:
       - TZ=${TZ:-UTC}
 
+  # Promtail log agent
   promtail:
     image: grafana/promtail:3.5.0
-    container_name: ${PROJECT}-promtail
+    container_name: ${PROJECT:-cppchat}-promtail
     volumes:
       - ./logs:/var/log/cppchat:ro
-      - ./docker/promtail/promtail-config.yaml:/etc/promtail/config.yml
+      - ./docker/promtail/promtail-config.yaml:/etc/promtail/config.yml:ro
     networks:
       - cppchat
     depends_on:
@@ -65,12 +75,13 @@ services:
     restart: unless-stopped
     environment:
       - TZ=${TZ:-UTC}
-      - USER=${PROMTAIL_USER}
-      - PSSWD=${PROMTAIL_PSSWD}
+      - USER=${PROMTAIL_USER:-promtail}
+      - PSSWD=${PROMTAIL_PSSWD:-}
 
+  # Grafana visualization platform
   grafana:
     image: grafana/grafana-oss:12.0.0
-    container_name: ${PROJECT}-grafana
+    container_name: ${PROJECT:-cppchat}-grafana
     ports:
       - "3000:3000"
     volumes:
@@ -102,11 +113,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 60s
 
+  # Nginx reverse proxy
   nginx:
     image: nginx:alpine
-    container_name: ${PROJECT}-nginx
+    container_name: ${PROJECT:-cppchat}-nginx
     ports:
       - "3101:3101"
     volumes:
@@ -116,7 +128,7 @@ services:
       - cppchat
     depends_on:
       loki:
-          condition: service_healthy
+        condition: service_healthy
     logging:
       driver: json-file
       options:
@@ -128,3 +140,9 @@ services:
           cpus: '0.3'
           memory: 256M
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
