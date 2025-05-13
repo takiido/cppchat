@@ -47,6 +47,8 @@ external/**/CMakeCache.txt
 .env*
 !.env.template
 
-# Generated Elasticsearch/Kibana data
-docker/elasticsearch/data/
-docker/kibana/data/
+# Generated Grafana data
+docker/grafana/provisioning/
+
+# Nginx
+docker/nginx/.htpasswd
