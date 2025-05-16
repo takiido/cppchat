@@ -1,3 +1,0 @@
-[submodule "external/libclang"]
-	path = external/libclang
-	url = https://github.com/takiido/cppchat-libs
