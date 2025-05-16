@@ -52,3 +52,7 @@ docker/grafana/provisioning/
 
 # Nginx
 docker/nginx/.htpasswd
+
+# Postgres
+docker/postgres/*.sql
+!docker/postgres/init.template.sql

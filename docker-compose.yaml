@@ -153,6 +153,7 @@ services:
       - "5432:5432"
     volumes:
       - pg-data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - cppchat
     healthcheck:
@@ -177,4 +178,5 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PSSWD}
       - POSTGRES_DB_USER=${CPPCHAT_DB_USER}
       - POSTGRES_DB_PSSWD=${CPPCHAT_DB_PSSWD}
+      - GRAFANA_DB_PSSWD=${GRAFANA_DB_PSSWD}
       - TZ=${TZ:-UTC}

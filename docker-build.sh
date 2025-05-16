@@ -19,6 +19,52 @@ draw_box() {
   echo -e "\n${color}${top}\n${middle}\n${bottom}${RESET}\n"
 }
 
+draw_box "Generating init.sql from template..." "$GREEN"
+chmod +x ./docker/postgres/gen-init-sql.sh
+./docker/postgres/gen-init-sql.sh
+export $(grep -v '^#' .env.dev | xargs)
+
+check_var() {
+  local name="$1"
+  local value="${!name}"
+  if [ -n "$value" ]; then
+    echo -e "${GREEN}✔${RESET} $name\t\t${GREEN}Found${RESET}"
+  else
+    echo -e "${RED}✘${RESET} $name\t\t${RED}Missing${RESET}"
+    missing_env=true
+  fi
+}
+
+draw_box "Validating init.sql generation..." "$GREEN"
+
+missing_sql=false
+if [ -f "./docker/postgres/init.sql" ]; then
+  echo -e "${GREEN}✔${RESET} init.sql\t\t\t${GREEN}Exists${RESET}"
+else
+  echo -e "${RED}✘${RESET} init.sql\t\t\t${RED}Missing${RESET}"
+  missing_sql=true
+fi
+
+draw_box "Checking required environment variables..." "$GREEN"
+
+required_vars=(
+  CPPCHAT_DB_USER
+  CPPCHAT_DB_PSSWD
+  GRAFANA_DB_PSSWD
+)
+
+missing_env=false
+for var in "${required_vars[@]}"; do
+  check_var "$var"
+done
+
+if [ "$missing_sql" = true ] || [ "$missing_env" = true ]; then
+  draw_box "Environment validation failed. Aborting build." "$RED"
+  exit 1
+else
+  draw_box "All checks passed. Continuing..." "$GREEN"
+fi
+
 draw_box "Stopping and removing existing containers..." "$GREEN"
 docker compose --env-file .env.dev down
 
@@ -29,7 +75,6 @@ draw_box "Starting containers..." "$GREEN"
 docker compose --env-file .env.dev up -d --wait --no-log-prefix --quiet-pull
 
 services=$(docker compose --env-file .env.dev ps --services)
-
 all_healthy=true
 
 for service in $services; do
@@ -48,3 +93,6 @@ if [ "$all_healthy" = true ]; then
 else
   draw_box "Some containers may have issues. Check logs." "$RED"
 fi
+
+draw_box "Cleaning up..." $GREEN
+rm ./docker/postgres/init.sql
