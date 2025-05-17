@@ -7,23 +7,20 @@
 #include <iostream>
 
 namespace cppchat::api {
-    std::unordered_map<std::string, std::string> load_env(const std::string &filename) {
-        std::unordered_map<std::string, std::string> env;
-        std::ifstream file(filename);
-        if (!file.is_open()) {
-            std::cerr << "Failed to open file " << filename << std::endl;
-        }
-        std::string line;
+std::string get_env(const std::string &key,
+                    const std::string &default_val) {
+  const char *val = std::getenv(key.c_str());
+  return val ? std::string(val) : default_val;
+}
 
-        while (std::getline(file, line)) {
-            if (line.empty() || line[0] == '#') continue;
-            std::istringstream iss(line);
-            std::string key, value;
-            if (std::getline(iss, key, '=') && std::getline(iss, value)) {
-                env[key] = value;
-            }
-        }
-
-        return env;
-    }
-} // cppchat::api
+int get_env_int(const std::string &key, int default_val) {
+  const char *val = std::getenv(key.c_str());
+  if (!val)
+    return default_val;
+  try {
+    return std::stoi(val);
+  } catch (...) {
+    return default_val;
+  }
+}
+} // namespace cppchat::api

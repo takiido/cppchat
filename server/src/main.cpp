@@ -9,8 +9,8 @@
 using cppchat::server::Server;
 
 int main() {
-    auto env = cppchat::api::load_env("../../.env.dev");
+    const int port = cppchat::api::get_env_int("PORT");
 
-    Server sv(std::stoi(env["PORT"]));
+    Server sv(port);
     sv.run();
 }
